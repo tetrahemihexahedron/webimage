@@ -1,0 +1,14 @@
+package exif
+
+type ImageMetadata struct {
+	FileName    string
+	FileType    string
+	Title       string
+	Description string
+	Width       uint
+	Height      uint
+}
+
+func Read(filename string) (ImageMetadata, error) {
+	return ImageMetadata{}, nil
+}
