@@ -17,7 +17,14 @@ type ImageMetadata struct {
 }
 
 func FetchMetadata(path string) ([]ImageMetadata, []error) {
-	return []ImageMetadata{}, nil
+	output, fetchErr := fetchExiftoolOutput(path)
+
+	metadata, errs := processOutput(output)
+	if fetchErr != nil {
+		errs = append(errs, fetchErr)
+	}
+
+	return metadata, errs
 }
 
 type exiftoolOutput struct {
