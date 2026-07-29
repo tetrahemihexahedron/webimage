@@ -9,6 +9,6 @@ type ImageMetadata struct {
 	Height      uint
 }
 
-func Read(filepath string) (ImageMetadata, error) {
-	return ImageMetadata{}, nil
+func FetchMetadata(path string) ([]ImageMetadata, []error) {
+	return []ImageMetadata{}, nil
 }
