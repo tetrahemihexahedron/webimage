@@ -48,3 +48,40 @@ func fetchExiftoolOutput(path string) ([]exiftoolOutput, error) {
 	}
 	return structuredOutput, nil
 }
+
+func processOutput(output []exiftoolOutput) ([]ImageMetadata, []error) {
+	metadata := make([]ImageMetadata, 0, len(output))
+	var errs []error
+
+	for _, out := range output {
+		if out.Error != "" {
+			errs = append(errs, fmt.Errorf(
+				"reported by exiftool for %q: %s",
+				out.FileName,
+				out.Error,
+			))
+			continue
+		}
+		if out.FileName == "" ||
+			out.FileType == "" ||
+			out.Width == 0 ||
+			out.Height == 0 {
+			errs = append(errs, fmt.Errorf(
+				"missing required metadata in %+v: FileName, FileType, Width, and Height are required",
+				out,
+			))
+			continue
+		}
+
+		metadata = append(metadata, ImageMetadata{
+			FileName:    out.FileName,
+			FileType:    out.FileType,
+			Title:       out.Title,
+			Description: out.Description,
+			Width:       out.Width,
+			Height:      out.Height,
+		})
+	}
+
+	return metadata, errs
+}
