@@ -33,20 +33,20 @@ type exiftoolOutput struct {
 func fetchExiftoolOutput(path string) ([]exiftoolOutput, error) {
 	cmd := exec.Command("exiftool", "-json", path)
 
-	out, err := cmd.Output()
+	rawOutput, err := cmd.Output()
 
-	if len(out) == 0 {
+	if len(rawOutput) == 0 {
 		if exitErr, ok := errors.AsType[*exec.ExitError](err); ok {
 			return nil, fmt.Errorf("running exiftool on %q: %s", path, exitErr.Stderr)
 		}
 		return nil, fmt.Errorf("running exiftool on %q: %w", path, err)
 	}
 
-	var structuredOutput []exiftoolOutput
-	if err := json.Unmarshal(out, &structuredOutput); err != nil {
-		return structuredOutput, fmt.Errorf("unmarshalling exiftool output for %q: %w", path, err)
+	var output []exiftoolOutput
+	if err := json.Unmarshal(rawOutput, &output); err != nil {
+		return output, fmt.Errorf("unmarshalling exiftool output for %q: %w", path, err)
 	}
-	return structuredOutput, nil
+	return output, nil
 }
 
 func processOutput(output []exiftoolOutput) ([]ImageMetadata, []error) {
