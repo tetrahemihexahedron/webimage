@@ -33,15 +33,20 @@ type exiftoolOutput struct {
 func fetchExiftoolOutput(path string) ([]exiftoolOutput, error) {
 	cmd := exec.Command("exiftool", "-json", path)
 
-	rawOutput, err := cmd.Output()
+	rawOutput, commandErr := cmd.Output()
 
 	if len(rawOutput) == 0 {
-		if exitErr, ok := errors.AsType[*exec.ExitError](err); ok {
+		if commandErr == nil {
+			return nil, fmt.Errorf("running exiftool on %q returned no output and no error", path)
+		}
+		if exitErr, ok := errors.AsType[*exec.ExitError](commandErr); ok {
 			return nil, fmt.Errorf("running exiftool on %q: %s", path, exitErr.Stderr)
 		}
-		return nil, fmt.Errorf("running exiftool on %q: %w", path, err)
+		return nil, fmt.Errorf("running exiftool on %q: %w", path, commandErr)
 	}
 
+	// if there was output to stdout, then commandErr is probably not interesting
+	// because exiftool reports the reasons for errors in stdout
 	var output []exiftoolOutput
 	if err := json.Unmarshal(rawOutput, &output); err != nil {
 		return output, fmt.Errorf("unmarshalling exiftool output for %q: %w", path, err)
