@@ -47,7 +47,7 @@ func fetchExiftoolOutput(path string) ([]exiftoolOutput, error) {
 			return nil, fmt.Errorf("running exiftool on %q returned no output and no error", path)
 		}
 		if exitErr, ok := errors.AsType[*exec.ExitError](commandErr); ok {
-			return nil, fmt.Errorf("running exiftool on %q: %s", path, exitErr.Stderr)
+			return nil, fmt.Errorf("running exiftool on %q: %w %s", path, commandErr, exitErr.Stderr)
 		}
 		return nil, fmt.Errorf("running exiftool on %q: %w", path, commandErr)
 	}
