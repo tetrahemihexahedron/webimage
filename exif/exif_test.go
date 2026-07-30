@@ -1,6 +1,8 @@
 package exif
 
 import (
+	"errors"
+	"os/exec"
 	"path/filepath"
 	"slices"
 	"testing"
@@ -59,7 +61,35 @@ func TestFetchMetadata(t *testing.T) {
 				t.Errorf("Unexpected errors returned when fetching metadata for %q: %v", testdata.path, errs)
 			}
 			if !slices.Equal(metadata, testdata.desiredMetadata) {
-				t.Errorf("Image metadata incorrect for source file %q.\n\n   Got: %+v\n\n   Wanted: %+v", testdata.path, metadata, testdata.desiredMetadata)
+				t.Errorf("Image metadata incorrect for %q.\n\n   Got: %+v\n\n   Wanted: %+v", testdata.path, metadata, testdata.desiredMetadata)
+			}
+		})
+	}
+}
+
+func TestFetchMetadataExecError(t *testing.T) {
+	var tests = map[string]struct {
+		path            string
+		desiredMetadata []ImageMetadata
+	}{
+		"nonexistent.jpg": {
+			path:            filepath.Join("testdata", "nonexistent.jpg"),
+			desiredMetadata: nil,
+		},
+	}
+
+	for testname, testdata := range tests {
+		t.Run(testname, func(t *testing.T) {
+			metadata, errs := FetchMetadata(testdata.path)
+			if !slices.Equal(metadata, testdata.desiredMetadata) {
+				t.Errorf("Image metadata incorrect for %q.\n\n   Got: %+v\n\n   Wanted: %+v", testdata.path, metadata, testdata.desiredMetadata)
+			}
+			if len(errs) != 1 {
+				t.Fatalf("Errors incorrect for %q.\n\n   Got: %+v\n\n   Wanted 1 exec.ExitError", testdata.path, errs)
+			}
+			err := errs[0]
+			if _, ok := errors.AsType[*exec.ExitError](err); !ok {
+				t.Errorf("Expected an exec.ExitError but got\n\n   %v\nwith type %T", err, err)
 			}
 		})
 	}
