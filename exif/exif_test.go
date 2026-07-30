@@ -1,6 +1,7 @@
 package exif
 
 import (
+	"path/filepath"
 	"slices"
 	"testing"
 )
@@ -11,7 +12,7 @@ func TestFetchMetadata(t *testing.T) {
 		desiredMetadata []ImageMetadata
 	}{
 		"IMG_3916.jpeg": {
-			path: "../test_images/IMG_3916.jpeg",
+			path: filepath.Join("testdata", "IMG_3916.jpeg"),
 			desiredMetadata: []ImageMetadata{
 				{
 					FileName:    "IMG_3916.jpeg",
@@ -24,7 +25,7 @@ func TestFetchMetadata(t *testing.T) {
 			},
 		},
 		"riveter_chew_it_1024x1535.jpeg": {
-			path: "../test_images/riveter_chew_it_1024x1535.jpeg",
+			path: filepath.Join("testdata", "riveter_chew_it_1024x1535.jpeg"),
 			desiredMetadata: []ImageMetadata{
 				{
 					FileName:    "riveter_chew_it_1024x1535.jpeg",
@@ -37,7 +38,7 @@ func TestFetchMetadata(t *testing.T) {
 			},
 		},
 		"squash.jpg": {
-			path: "../test_images/squash.jpg",
+			path: filepath.Join("testdata", "squash.jpg"),
 			desiredMetadata: []ImageMetadata{
 				{
 					FileName:    "squash.jpg",
