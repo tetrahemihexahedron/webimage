@@ -2,7 +2,6 @@ package variants
 
 type Spec struct {
 	FileName string
-	Format   string
 	Width    uint
 	Height   uint
 }
