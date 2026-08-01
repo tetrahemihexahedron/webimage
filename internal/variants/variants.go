@@ -56,8 +56,11 @@ func generateVariant(source string, spec Spec) error {
 	out, err := cmd.CombinedOutput()
 
 	// out is expected to be empty when image generation was successful
-	if len(out) != 0 || err != nil {
-		return fmt.Errorf("output of image generation command: %s; %w", out, err)
+	if err != nil {
+		return fmt.Errorf("image generation failed: %s; %w", out, err)
+	}
+	if len(out) != 0 {
+		return fmt.Errorf("unexpected output from image generation: %s", out)
 	}
 
 	return nil
