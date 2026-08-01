@@ -3,6 +3,10 @@ package variants
 import (
 	"errors"
 	"fmt"
+	"os/exec"
+	"path/filepath"
+	"strconv"
+	"strings"
 )
 
 type Spec struct {
@@ -30,5 +34,57 @@ func Generate(source string, specs []Spec) error {
 }
 
 func generateVariant(source string, spec Spec) error {
+	if err := validateSpec(spec); err != nil {
+		return err
+	}
+	if filepath.Clean(source) == filepath.Clean(spec.OutPath) {
+		return errors.New("source and output file paths cannot be the same")
+	}
+
+	options, err := determineEncoderOptions(spec.OutPath)
+	if err != nil {
+		return err
+	}
+
+	// appending '>' tells libvips to only shrink; if the image is already
+	// smaller than the requested size, the size won't change
+	width := strconv.Itoa(spec.Width) + "x>"
+	path := spec.OutPath + options
+
+	cmd := exec.Command("vipsthumbnail", source, "--size", width, "--path", path)
+
+	out, err := cmd.CombinedOutput()
+
+	// out is expected to be empty when image generation was successful
+	if len(out) != 0 || err != nil {
+		return fmt.Errorf("output of image generation command: %s; %w", out, err)
+	}
+
 	return nil
+}
+
+func validateSpec(spec Spec) error {
+	if spec.OutPath == "" {
+		return errors.New("output file path cannot be empty")
+	}
+
+	if spec.Width <= 0 {
+		return errors.New("width must be positive")
+	}
+
+	return nil
+}
+
+func determineEncoderOptions(path string) (string, error) {
+	switch strings.ToLower(filepath.Ext(path)) {
+	case ".jpeg", ".jpg":
+		return "[Q=75,keep=none]", nil
+	case ".avif":
+		return "[Q=75,effort=6,keep=none]", nil
+	default:
+		return "", fmt.Errorf(
+			"unsupported output file extension %q",
+			filepath.Ext(path),
+		)
+	}
 }
