@@ -7,7 +7,7 @@ import (
 
 type Spec struct {
 	OutPath string
-	Width   uint
+	Width   int
 }
 
 func Generate(source string, specs []Spec) error {
