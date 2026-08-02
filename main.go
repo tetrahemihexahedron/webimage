@@ -11,6 +11,11 @@ import (
 	"tetrahemihexahedron/webimage/internal/exif"
 )
 
+type image struct {
+	hash     string
+	metadata exif.ImageMetadata
+}
+
 func main() {
 	config, err := config.Load()
 	if err != nil {
@@ -37,6 +42,8 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+		image := image{hash: hash, metadata: metadata}
+
 		shortHash := hash[:10]
 		log.Printf("short hash for %s is %s", inPath, shortHash)
 	}
