@@ -12,8 +12,8 @@ type ImageMetadata struct {
 	FileType    string
 	Title       string
 	Description string
-	Width       uint
-	Height      uint
+	Width       int
+	Height      int
 }
 
 func FetchMetadata(path string) ([]ImageMetadata, []error) {
@@ -32,8 +32,8 @@ type exiftoolOutput struct {
 	FileType    string `json:"FileType"`
 	Title       string `json:"Title"`
 	Description string `json:"Description"`
-	Width       uint   `json:"ImageWidth"`
-	Height      uint   `json:"ImageHeight"`
+	Width       int   `json:"ImageWidth"`
+	Height      int   `json:"ImageHeight"`
 	Error       string `json:"Error"`
 }
 
