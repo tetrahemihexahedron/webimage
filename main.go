@@ -7,12 +7,14 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"tetrahemihexahedron/webimage/internal/config"
 	"tetrahemihexahedron/webimage/internal/exif"
 )
 
 type image struct {
 	hash     string
+	imageDir string
 	metadata exif.ImageMetadata
 }
 
@@ -42,10 +44,17 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		image := image{hash: hash, metadata: metadata}
 
 		shortHash := hash[:10]
-		log.Printf("short hash for %s is %s", inPath, shortHash)
+		imageDir := imageDir(metadata.FileName, shortHash)
+
+		image := image{
+			hash:     hash,
+			imageDir: imageDir,
+			metadata: metadata,
+		}
+
+		log.Printf("image is %+v", image)
 	}
 }
 
@@ -62,4 +71,10 @@ func hashFile(filename string) (string, error) {
 	}
 
 	return hex.EncodeToString(h.Sum(nil)), nil
+}
+
+func imageDir(filename string, suffix string) string {
+	base := strings.TrimSuffix(filename, filepath.Ext(filename))
+
+	return base + "-" + suffix
 }
