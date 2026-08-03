@@ -32,8 +32,8 @@ type exiftoolOutput struct {
 	FileType    string `json:"FileType"`
 	Title       string `json:"Title"`
 	Description string `json:"Description"`
-	Width       int   `json:"ImageWidth"`
-	Height      int   `json:"ImageHeight"`
+	Width       int    `json:"ImageWidth"`
+	Height      int    `json:"ImageHeight"`
 	Error       string `json:"Error"`
 }
 
