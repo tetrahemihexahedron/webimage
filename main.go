@@ -12,7 +12,7 @@ import (
 	"tetrahemihexahedron/webimage/internal/exif"
 )
 
-type image struct {
+type processedImage struct {
 	hash     string
 	imageDir string
 	metadata exif.ImageMetadata
@@ -48,7 +48,7 @@ func main() {
 		shortHash := hash[:10]
 		imageDir := imageDir(metadata.FileName, shortHash)
 
-		image := image{
+		image := processedImage{
 			hash:     hash,
 			imageDir: imageDir,
 			metadata: metadata,
