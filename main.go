@@ -10,6 +10,7 @@ import (
 	"strings"
 	"tetrahemihexahedron/webimage/internal/config"
 	"tetrahemihexahedron/webimage/internal/exif"
+	"tetrahemihexahedron/webimage/internal/image"
 )
 
 type processedImage struct {
@@ -34,7 +35,7 @@ func main() {
 	}
 
 	for _, metadata := range allMetadata {
-		if metadata.FileType != "JPEG" {
+		if metadata.FileType != image.FormatJPEG {
 			log.Printf("Skipping file %s: file type is %s, not JPEG", metadata.FileName, metadata.FileType)
 			continue
 		}

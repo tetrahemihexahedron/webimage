@@ -5,11 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"os/exec"
+	"tetrahemihexahedron/webimage/internal/image"
 )
 
 type ImageMetadata struct {
 	FileName    string
-	FileType    string
+	FileType    image.Format
 	Title       string
 	Description string
 	Width       int
@@ -87,7 +88,7 @@ func processOutput(output []exiftoolOutput) ([]ImageMetadata, []error) {
 
 		metadata = append(metadata, ImageMetadata{
 			FileName:    out.FileName,
-			FileType:    out.FileType,
+			FileType:    image.ParseFormat(out.FileType),
 			Title:       out.Title,
 			Description: out.Description,
 			Width:       out.Width,
