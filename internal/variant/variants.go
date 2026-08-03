@@ -1,4 +1,4 @@
-package variants
+package variant
 
 import (
 	"errors"
