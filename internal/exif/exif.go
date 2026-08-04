@@ -8,16 +8,7 @@ import (
 	"tetrahemihexahedron/webimage/internal/image"
 )
 
-type ImageMetadata struct {
-	FileName    string
-	FileType    image.Format
-	Title       string
-	Description string
-	Width       int
-	Height      int
-}
-
-func FetchMetadata(path string) ([]ImageMetadata, []error) {
+func FetchMetadata(path string) ([]image.Metadata, []error) {
 	output, fetchErr := fetchExiftoolOutput(path)
 
 	metadata, errs := processOutput(output)
@@ -62,8 +53,8 @@ func fetchExiftoolOutput(path string) ([]exiftoolOutput, error) {
 	return output, nil
 }
 
-func processOutput(output []exiftoolOutput) ([]ImageMetadata, []error) {
-	metadata := make([]ImageMetadata, 0, len(output))
+func processOutput(output []exiftoolOutput) ([]image.Metadata, []error) {
+	metadata := make([]image.Metadata, 0, len(output))
 	var errs []error
 
 	for _, out := range output {
@@ -86,7 +77,7 @@ func processOutput(output []exiftoolOutput) ([]ImageMetadata, []error) {
 			continue
 		}
 
-		metadata = append(metadata, ImageMetadata{
+		metadata = append(metadata, image.Metadata{
 			FileName:    out.FileName,
 			FileType:    image.ParseFormat(out.FileType),
 			Title:       out.Title,

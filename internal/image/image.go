@@ -2,6 +2,15 @@ package image
 
 import "strings"
 
+type Metadata struct {
+	FileName    string
+	FileType    Format
+	Title       string
+	Description string
+	Width       int
+	Height      int
+}
+
 type Format string
 
 const (
