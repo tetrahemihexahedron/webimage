@@ -13,12 +13,6 @@ import (
 	"tetrahemihexahedron/webimage/internal/image"
 )
 
-type processedImage struct {
-	hash     string
-	imageDir string
-	metadata exif.ImageMetadata
-}
-
 func main() {
 	config, err := config.Load()
 	if err != nil {
@@ -49,10 +43,10 @@ func main() {
 		shortHash := hash[:10]
 		imageDir := imageDir(metadata.FileName, shortHash)
 
-		image := processedImage{
-			hash:     hash,
-			imageDir: imageDir,
-			metadata: metadata,
+		image := image.Processed{
+			Hash:     hash,
+			ImageDir: imageDir,
+			Metadata: metadata,
 		}
 
 		log.Printf("image is %+v", image)

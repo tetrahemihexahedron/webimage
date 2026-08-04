@@ -11,6 +11,12 @@ type Metadata struct {
 	Height      int
 }
 
+type Processed struct {
+	Hash     string
+	ImageDir string
+	Metadata Metadata
+}
+
 type Format string
 
 const (
