@@ -40,11 +40,16 @@ func ProcessDir(config config.Config) error {
 
 		image := image.Processed{
 			Hash:     hash,
-			ImageDir: imageDir(),
+			ImageDir: filepath.Join(config.OutDir, imageDir()),
 			Metadata: metadata,
 		}
 
 		log.Printf("image is %+v", image)
+
+		if err := os.MkdirAll(image.ImageDir, 0755); err != nil {
+			log.Fatalf("unable to make image directory %s: %v", image.ImageDir, err)
+		}
+
 	}
 	return nil
 }
