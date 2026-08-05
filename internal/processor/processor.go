@@ -52,6 +52,13 @@ func ProcessDir(config config.Config) error {
 			log.Fatalf("unable to make image directory %s: %v", image.ImageDir, err)
 		}
 
+		specs := variantSpecs(image)
+		genErr := variant.Generate(inPath, specs)
+
+		if genErr != nil {
+			log.Fatal(genErr)
+		}
+
 	}
 	return nil
 }
