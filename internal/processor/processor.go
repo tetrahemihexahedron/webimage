@@ -1,16 +1,20 @@
 package processor
 
 import (
+	"crypto/rand"
 	"crypto/sha256"
+	"encoding/base64"
 	"encoding/hex"
+	"fmt"
 	"io"
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
+	"regexp"
 	"tetrahemihexahedron/webimage/internal/config"
 	"tetrahemihexahedron/webimage/internal/exif"
 	"tetrahemihexahedron/webimage/internal/image"
+	"time"
 )
 
 func ProcessDir(config config.Config) error {
@@ -34,12 +38,9 @@ func ProcessDir(config config.Config) error {
 			log.Fatal(err)
 		}
 
-		shortHash := hash[:10]
-		imageDir := imageDir(metadata.FileName, shortHash)
-
 		image := image.Processed{
 			Hash:     hash,
-			ImageDir: imageDir,
+			ImageDir: imageDir(),
 			Metadata: metadata,
 		}
 
@@ -63,8 +64,20 @@ func hashFile(filename string) (string, error) {
 	return hex.EncodeToString(h.Sum(nil)), nil
 }
 
-func imageDir(filename string, suffix string) string {
-	base := strings.TrimSuffix(filename, filepath.Ext(filename))
+func imageDir() string {
+	randId := ""
+	b := make([]byte, 7)
+	re := regexp.MustCompile(`^[a-zA-Z0-9]+$`)
 
-	return base + "-" + suffix
+	for !re.MatchString(randId) {
+		if _, err := rand.Read(b); err != nil {
+			log.Fatal(err)
+		}
+		randId = base64.RawURLEncoding.EncodeToString(b)
+	}
+
+	year := time.Now().Year()
+	month := time.Now().Month()
+
+	return fmt.Sprintf("%d/%02d/%s/", year, month, randId)
 }
