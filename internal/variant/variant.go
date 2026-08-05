@@ -44,36 +44,50 @@ func (r Result) Failed() []VariantResult {
 	return failed
 }
 
-func Generate(source string, specs []Spec) error {
+func Generate(source string, specs []Spec) (Result, error) {
 	if source == "" {
-		return errors.New("source file path cannot be empty")
+		return Result{}, errors.New("source file path cannot be empty")
 	}
 
+	result := Result{
+		Variants: make([]VariantResult, 0, len(specs)),
+	}
 	var errs []error
+
 	for _, spec := range specs {
-		if err := generateVariant(source, spec); err != nil {
+		variantResult := generateVariant(source, spec)
+		result.Variants = append(result.Variants, variantResult)
+
+		if variantResult.Err != nil {
 			errs = append(errs, fmt.Errorf(
 				"generating %q with width %d: %w",
 				spec.OutPath,
 				spec.Width,
-				err,
+				variantResult.Err,
 			))
 		}
 	}
-	return errors.Join(errs...)
+	return result, errors.Join(errs...)
 }
 
-func generateVariant(source string, spec Spec) error {
+func generateVariant(source string, spec Spec) VariantResult {
+	result := VariantResult{
+		Spec: spec,
+	}
+
 	if err := validateSpec(spec); err != nil {
-		return err
+		result.Err = err
+		return result
 	}
 	if filepath.Clean(source) == filepath.Clean(spec.OutPath) {
-		return errors.New("source and output file paths cannot be the same")
+		result.Err = errors.New("source and output file paths cannot be the same")
+		return result
 	}
 
 	options, err := determineEncoderOptions(spec.OutPath)
 	if err != nil {
-		return err
+		result.Err = err
+		return result
 	}
 
 	// appending '>' tells libvips to only shrink; if the image is already
@@ -85,15 +99,18 @@ func generateVariant(source string, spec Spec) error {
 
 	out, err := cmd.CombinedOutput()
 
-	// out is expected to be empty when image generation was successful
 	if err != nil {
-		return fmt.Errorf("image generation failed: %s; %w", out, err)
+		result.Err = fmt.Errorf("image generation failed: %s; %w", out, err)
+		return result
 	}
+	// out is expected to be empty when image generation was successful
 	if len(out) != 0 {
-		return fmt.Errorf("unexpected output from image generation: %s", out)
+		result.Err = fmt.Errorf("unexpected output from image generation: %s", out)
+		return result
 	}
 
-	return nil
+	result.Generated = true
+	return result
 }
 
 func validateSpec(spec Spec) error {

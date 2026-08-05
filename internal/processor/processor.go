@@ -53,7 +53,7 @@ func ProcessDir(config config.Config) error {
 		}
 
 		specs := variantSpecs(image)
-		genErr := variant.Generate(inPath, specs)
+		_, genErr := variant.Generate(inPath, specs)
 
 		if genErr != nil {
 			log.Fatal(genErr)
