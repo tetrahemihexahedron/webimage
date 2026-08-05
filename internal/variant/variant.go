@@ -14,6 +14,36 @@ type Spec struct {
 	Width   int
 }
 
+type Result struct {
+	Variants []VariantResult
+}
+
+type VariantResult struct {
+	Spec      Spec
+	Generated bool
+	Err       error
+}
+
+func (r Result) Generated() []Spec {
+	var generated []Spec
+	for _, variant := range r.Variants {
+		if variant.Generated {
+			generated = append(generated, variant.Spec)
+		}
+	}
+	return generated
+}
+
+func (r Result) Failed() []VariantResult {
+	var failed []VariantResult
+	for _, variant := range r.Variants {
+		if variant.Err != nil {
+			failed = append(failed, variant)
+		}
+	}
+	return failed
+}
+
 func Generate(source string, specs []Spec) error {
 	if source == "" {
 		return errors.New("source file path cannot be empty")
