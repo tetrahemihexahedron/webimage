@@ -11,9 +11,11 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"tetrahemihexahedron/webimage/internal/config"
 	"tetrahemihexahedron/webimage/internal/exif"
 	"tetrahemihexahedron/webimage/internal/image"
+	"tetrahemihexahedron/webimage/internal/variant"
 	"time"
 )
 
@@ -85,4 +87,39 @@ func imageDir() string {
 	month := time.Now().Month()
 
 	return fmt.Sprintf("%d/%02d/%s/", year, month, randId)
+}
+
+func variantSpecs(img image.Processed) []variant.Spec {
+	var desiredWidths = []int{400, 800, 1200, 1600}
+	var desiredExts = []string{".jpg", ".avif"}
+
+	// widths generated are <= the source's width
+	widths := variantWidths(img.Metadata.Width, desiredWidths)
+	specs := make([]variant.Spec, 0, len(widths)*len(desiredExts))
+
+	for _, ext := range desiredExts {
+		for _, width := range widths {
+			filename := filename(width, ext)
+			filepath := filepath.Join(img.ImageDir, filename)
+			specs = append(specs, variant.Spec{OutPath: filepath, Width: width})
+		}
+	}
+	return specs
+}
+
+func variantWidths(sourceWidth int, desired []int) []int {
+	widths := make([]int, 0, len(desired))
+
+	for _, width := range desired {
+		if sourceWidth <= width {
+			widths = append(widths, sourceWidth)
+			return widths
+		}
+		widths = append(widths, width)
+	}
+	return widths
+}
+
+func filename(width int, ext string) string {
+	return "w" + strconv.Itoa(width) + ext
 }
